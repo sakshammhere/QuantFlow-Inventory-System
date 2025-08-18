@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Login - Dashboard{% endblock %}
+{% block content %}
+  <form id="loginForm" onsubmit="return validateEmail();">
+    <label for="email">Email address:</label>
+    <input type="email" id="email" placeholder="name@example.com" required>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Enter your password" required>
+
+    <div id="error-message" class="error"></div>
+
+    <input type="submit" value="Submit">
+  </form>
+
+  <script>
+    function validateEmail() {
+      const emailInput = document.getElementById('email');
+      const errorMessage = document.getElementById('error-message');
+      const email = emailInput.value.trim();
+
+      const atIndex = email.indexOf('@');
+      const dotIndex = email.lastIndexOf('.');
+      
+      if (
+        atIndex < 1 ||
+        dotIndex <= atIndex + 1 ||
+        dotIndex === email.length - 1
+      ) {
+        errorMessage.textContent = "Please enter a valid email address.";
+        emailInput.focus();
+        return false;
+      }
+
+      errorMessage.textContent = "";
+      return true;
+    }
+  </script>
+{% endblock %}
+<!DOCTYPE html>
