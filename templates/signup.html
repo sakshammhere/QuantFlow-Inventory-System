@@ -13,9 +13,55 @@
 
     <label for="terms">
       <input type="checkbox" id="terms" required>
-      I agree to the terms and conditions
+      I agree to the 
+      <a href="#" id="showTerms" style="text-decoration: underline; cursor: pointer;">terms and conditions</a>
     </label>
 
     <input type="submit" value="Sign Up">
   </form>
+
+  <!-- Terms and Conditions Modal -->
+  <div id="termsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+    <div style="background:#fff; max-width:500px; margin:100px auto; padding:20px; border-radius:8px; position:relative;">
+      <h2>Terms & Conditions</h2>
+      <div style="height:200px; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:20px;">
+
+        <p>1. By creating an account and using this site, you agree to comply with and be bound by these Terms and Conditions.</p>
+        <p></p>2. You must provide accurate information during signup and keep your account secure.</p>
+        <p>3. All content and materials on this site are owned by QuantFlow, unless otherwise stated.</p>
+        <p>4. You may not use the site for any unlawful purpose or in a way that could damage or impair the site.</p>
+        <p></p>5. We do not guarantee uninterrupted or error-free service and reserve the right to change or discontinue any part of the service at any time.</p>
+        <p>6. Your use of this site is at your own risk. We are not liable for any damages arising from your use of the site.</p>
+        <p>7. We may update these Terms and Conditions from time to time. Continued use of the site means you accept the updates.</p>
+
+      </div>
+      <button id="agreeBtn" style="padding:10px 20px; margin-right:10px;">Agree and Continue</button>
+      <button id="closeBtn" style="padding:10px 20px;">Close</button>
+    </div>
+  </div>
+
+<script>
+  document.getElementById('showTerms').addEventListener('click', function(event) {
+    event.preventDefault();
+    document.getElementById('termsModal').style.display = 'block';
+  });
+
+  document.getElementById('closeBtn').addEventListener('click', function() {
+    document.getElementById('termsModal').style.display = 'none';
+  });
+
+  document.getElementById('agreeBtn').addEventListener('click', function() {
+    document.getElementById('termsModal').style.display = 'none';
+    // Mark the checkbox as checked
+    document.getElementById('terms').checked = true;
+  });
+
+  // Optional: prevent form submit if T&C not agreed
+  document.getElementById('signupForm').addEventListener('submit', function(e) {
+    if (!document.getElementById('terms').checked) {
+      e.preventDefault();
+      alert('You must agree to the terms and conditions before signing up.');
+    }
+  });
+</script>
 {% endblock %}

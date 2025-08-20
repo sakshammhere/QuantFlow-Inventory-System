@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Inventory - Dashboard{% endblock %}
+{% block content %}
+  <h2>Inventory</h2>
+  {% if inventory %}
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="border-bottom:1px solid #ccc; padding:8px;">ID</th>
+          <th style="border-bottom:1px solid #ccc; padding:8px;">Name</th>
+          <th style="border-bottom:1px solid #ccc; padding:8px;">Quantity</th>
+          <th style="border-bottom:1px solid #ccc; padding:8px;">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in inventory %}
+        <tr>
+          <td style="padding:8px;">{{ item.id }}</td>
+          <td style="padding:8px;">{{ item.name }}</td>
+          <td style="padding:8px;">{{ item.quantity }}</td>
+          <td style="padding:8px;">Rs.{{ "%.2f"|format(item.price) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No items in inventory.</p>
+  {% endif %}
+{% endblock %}
