@@ -1,5 +1,74 @@
-<html>
-    <body>
-        <h1>Add New Item</h1>
-    </body>
-</html>
+{% extends "base.html" %}
+{% block title %}Add Item(s) - Dashboard{% endblock %}
+{% block content %}
+<h2>Add Item(s)</h2>
+<!-- Form for adding multiple items -->
+<form id="multiItemForm" method="POST" action="{{ url_for('add_item') }}">
+  <table id="itemsTable" style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+
+    <thead>
+      <tr>
+        <th style="padding: 8px; width: 40%; text-align: left;">Item Name</th>
+        <th style="padding: 8px; width: 20%; text-align: right;">Quantity</th>
+        <th style="padding: 8px; width: 20%; text-align: right;">Price</th>
+        <th style="width: 10%; text-align: center;">Add</th>
+      </tr>
+    </thead>
+
+<!-- Initial row for item input -->
+    <tbody>
+      <tr>
+        <td><input type="text" name="name[]" required style="width: 95%;"></td>
+        <td><input type="number" name="quantity[]" min="0" required style="width: 90%; text-align: right;"></td>
+        <td><input type="number" name="price[]" min="0" step="0.01" required style="width: 90%; text-align: right;"></td>
+        <td style="text-align:center;">
+            <!-- Button to add another item row -->
+          <button type="button" class="addRowBtn" title="Add another item" style="font-size:20px;">&#43;</button>
+        </td>
+      </tr>
+    </tbody>
+<!-- Last row for item input, then finish adding. -->
+    <tfoot>
+      <tr>
+        <td colspan="4" style="text-align: right; padding-top: 10px;">
+          <button type="submit">Finish Adding</button>
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+</form>
+<!-- Script for dynamically adding item rows using JS-->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const tableBody = document.querySelector('#itemsTable tbody');
+
+    function createRow() {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><input type="text" name="name[]" required style="width: 95%;"></td>
+        <td><input type="number" name="quantity[]" min="0" required style="width: 90%; text-align: right;"></td>
+        <td><input type="number" name="price[]" min="0" step="0.01" required style="width: 90%; text-align: right;"></td>
+        <td style="text-align:center;">
+          <button type="button" class="addRowBtn" title="Add another item" style="font-size:20px;">&#43;</button>
+        </td>
+      `;
+      return row;
+    }
+
+    tableBody.addEventListener('click', function(event) {
+      if(event.target && event.target.classList.contains('addRowBtn')) {
+        const currentRow = event.target.closest('tr');
+        const inputs = currentRow.querySelectorAll('input');
+        for(const input of inputs) {
+          if(!input.checkValidity()) {
+            input.reportValidity();
+            return;
+          }
+        }
+        event.target.disabled = true;
+        tableBody.appendChild(createRow());
+      }
+    });
+  });
+</script>
+{% endblock %}

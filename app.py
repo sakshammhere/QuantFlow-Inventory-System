@@ -1,12 +1,9 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
-INVENTORY = [
-    {"id": 1, "name": "Item A", "quantity": 10, "price": 300},
-    {"id": 2, "name": "Item B", "quantity": 5, "price": 400},
-    {"id": 3, "name": "Item C", "quantity": 0, "price": 150},
-]
+global INVENTORY
+INVENTORY = [] #This is left empty initially, and items are added through the add_item route.
 
 @app.route('/')
 def home():
@@ -32,9 +29,29 @@ def signup():
 def inventory():
     return render_template('inventory.html', inventory=INVENTORY)
 
-@app.route('/add-item')
+@app.route('/add-item', methods=['GET', 'POST'])
 def add_item():
-    return render_template('add_item.html')
+    if request.method == 'POST':
+        names = request.form.getlist('name[]')
+        quantities = request.form.getlist('quantity[]')
+        prices = request.form.getlist('price[]')
+
+        for name, qty, price in zip(names, quantities, prices):
+            if not name.strip():  #checks if name is not empty
+                continue
+            try:
+                quantity = int(qty)       #checks if quantity is a valid integer
+                price_val = float(price)  #checks if price is a valid float
+            except ValueError:
+                continue
+
+            #checks if item already exists, if not starts id from 1, otherwise continues incrementing
+            new_id = INVENTORY[-1]['id'] + 1 if INVENTORY else 1
+            INVENTORY.append({'id': new_id, 'name': name.strip(), 'quantity': quantity, 'price': price_val})
+
+        return redirect(url_for('inventory'))
+    else:
+        return render_template('add_item.html')
 
 @app.route('/reports')
 def reports():
