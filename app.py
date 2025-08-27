@@ -3,7 +3,7 @@ from supabase import create_client, Client
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 import secrets
-
+import re
 
 secret_key = secrets.token_hex(32)  # 64 hex chars = 256 bits random
 
@@ -17,9 +17,12 @@ supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase: Client = create_client(supabase_url, supabase_key)
 
 
-global INVENTORY
+#global INVENTORY not required since now inventory is created dynamically
 INVENTORY = []  # This is left empty initially, and items are added through the add_item route.
 
+def sanitize_email(email):
+    return re.sub(r'\W+', '_', email)
+# contains only alphanumeric and underscores
 
 @app.route('/')
 def home():
@@ -42,7 +45,15 @@ def inventory():
     if not session.get('user_email'):
         flash("Please log in to view your inventory.")
         return redirect(url_for('login'))
-    return render_template('inventory.html', inventory=INVENTORY)
+    safe_email = sanitize_email(session['user_email'])
+    inventory_table = f"{safe_email}_inventory"
+    try:
+        response = supabase.table(inventory_table).select("*").execute()
+        inventory = response.data or []
+    except Exception as e:
+        inventory = []
+        flash("Error loading inventory: " + str(e))
+    return render_template('inventory.html', inventory=inventory)
 
 
 @app.route('/add-item', methods=['GET', 'POST'])
@@ -50,28 +61,36 @@ def add_item():
     if not session.get('user_email'):
         flash("Please log in to add items.")
         return redirect(url_for('login'))
-
+    safe_email = sanitize_email(session['user_email'])
+    inventory_table = f"{safe_email}_inventory"
     if request.method == 'POST':
         names = request.form.getlist('name[]')
         quantities = request.form.getlist('quantity[]')
         prices = request.form.getlist('price[]')
-
         for name, qty, price in zip(names, quantities, prices):
-            if not name.strip():  # checks if name is not empty
+            if not name.strip():
                 continue
             try:
-                quantity = int(qty)       # checks if quantity is a valid integer
-                price_val = float(price)  # checks if price is a valid float
+                quantity = int(qty)
+                price_val = float(price)
             except ValueError:
                 continue
+            data = {
+                "name": name.strip(),
+                "quantity": quantity,
+                "price": price_val,
+                "created_at": datetime.datetime.utcnow().isoformat()
+            }
 
-            # checks if item already exists, if not starts id from 1, otherwise continues incrementing
-            new_id = INVENTORY[-1]['id'] + 1 if INVENTORY else 1
-            INVENTORY.append({'id': new_id, 'name': name.strip(), 'quantity': quantity, 'price': price_val})
-
+            #inserting data into email_inventory table
+            try:
+                supabase.table(inventory_table).insert(data).execute()
+            except Exception as e:
+                flash("Error adding item: " + str(e))
         return redirect(url_for('inventory'))
     else:
         return render_template('add_item.html')
+
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -81,21 +100,14 @@ def signup():
         email = request.form['email'].strip()
         password = request.form['password']
         confirm_password = request.form['confirm-password']
-
         if password != confirm_password:
             flash("Passwords do not match!")
             return redirect(url_for('signup'))
-
-        # Check if email already exists in user_details table
         existing_user = supabase.table('user_details').select("*").eq('email_id', email).execute()
         if existing_user.data:
             flash("Email already registered. Please login.")
             return redirect(url_for('login'))
-
-        # Hash the password
         hashed_password = generate_password_hash(password)
-
-        # Insert new user with created_at timestamp and name
         data = {
             "name": name,
             "email_id": email,
@@ -104,9 +116,25 @@ def signup():
         }
         supabase.table('user_details').insert(data).execute()
 
+        # Create the user's inventory table using SQL function/rpc (you must define it in your Postgres instance)
+        safe_email = sanitize_email(email)
+        inventory_table = f"{safe_email}_inventory"
+        inventory_schema = """
+            id serial primary key,
+            name text,
+            quantity integer,
+            price float,
+            created_at timestamp default now()
+        """
+        sql_query = f"CREATE TABLE IF NOT EXISTS {inventory_table} ({inventory_schema});"
+        
+        # we define an RPC function execute_sql in supabase to run raw SQL from python
+        try:
+            supabase.rpc('execute_sql', {"sql": sql_query}).execute()
+        except Exception as e:
+            flash("Error creating inventory table: " + str(e))
         flash("Signup successful! Please login.")
         return render_template('signup.html', show_login_link=True)
-
     else:
         return render_template('signup.html')
 
@@ -155,4 +183,4 @@ def reports():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=8000)
