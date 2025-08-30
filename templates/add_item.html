@@ -1,11 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Add Item(s) - Dashboard{% endblock %}
 {% block content %}
+
 <h2>Add Item(s)</h2>
+<!-- Prompt for duplicate detection -->
+{% if duplicate_item %}
+  <div style="color: #e63946; font-weight: bold; margin-bottom: 18px;">
+    This item ("{{ entered_name }}") is already present in your inventory.<br>
+    Do you want to <b>Update</b> its quantity and price, or <b>Replace</b> it completely?<br>
+    <span style="color:#555; font-weight:normal;">Current: QTY {{ duplicate_item.quantity }}, PRICE {{ "%.2f"|format(duplicate_item.price) }}</span>
+  </div>
+  <form method="POST" action="{{ url_for('add_item') }}">
+    <input type="hidden" name="name[]" value="{{ entered_name }}">
+    <input type="hidden" name="quantity[]" value="{{ entered_quantity }}">
+    <input type="hidden" name="price[]" value="{{ entered_price }}">
+    <input type="hidden" name="duplicate_id" value="{{ duplicate_item.id }}">
+    <button type="submit" name="action" value="update">Update</button>
+    <button type="submit" name="action" value="replace">Replace</button>
+  </form>
+{% else %}
 <!-- Form for adding multiple items -->
 <form id="multiItemForm" method="POST" action="{{ url_for('add_item') }}">
   <table id="itemsTable" style="width:100%; border-collapse:collapse; margin-bottom:10px;">
-
     <thead>
       <tr>
         <th style="padding: 8px; width: 40%; text-align: left;">Item Name</th>
@@ -14,8 +30,7 @@
         <th style="width: 10%; text-align: center;">Add</th>
       </tr>
     </thead>
-
-<!-- Initial row for item input -->
+    <!-- Initial row for item input -->
     <tbody>
       <tr>
         <td><input type="text" name="name[]" required style="width: 95%;"></td>
@@ -27,7 +42,7 @@
         </td>
       </tr>
     </tbody>
-<!-- Last row for item input, then finish adding. -->
+    <!-- Last row for item input, then finish adding. -->
     <tfoot>
       <tr>
         <td colspan="4" style="text-align: right; padding-top: 10px;">
@@ -71,4 +86,6 @@
     });
   });
 </script>
+{% endif %}
+
 {% endblock %}
