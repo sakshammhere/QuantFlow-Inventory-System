@@ -35,8 +35,23 @@ def home():
 def about():
     return render_template('about.html')
 
-@app.route('/contact')
+@app.route('/contact', methods=['GET', 'POST'])
 def contact():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        subject = request.form.get('subject', '')
+        message = request.form.get('message')
+
+        if not name or not email or not message:
+            flash('Please fill out all required fields.')
+            return redirect(request.url)
+        
+        # email sending thing here, rather than db, or just clearing it.
+
+        flash('Thank you for contacting us! We will respond shortly.')
+        return redirect(request.url)
+
     return render_template('contact.html')
 
 @app.route('/inventory')

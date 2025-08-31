@@ -1,7 +1,65 @@
-{% extends "base.html" %}
-{% block title %}Contact Us - Dashboard{% endblock %}
+{% extends 'base.html' %}
+
+{% block title %}Contact Us - QuantFlow{% endblock %}
+
 {% block content %}
-  <h2>Contact Us</h2>
-  <p>For inquiries, please reach out via our contact form or email us at <a href="mailto:contact@example.com">contact@example.com</a>.</p>
+<div class="row justify-content-center">
+  <div class="col-lg-8 col-md-10">
+    <h1 class="mb-4 text-primary">Contact Us</h1>
+    <p class="mb-4">
+      Have any questions, feedback, or need support? Please fill out the form below and we’ll get back to you as soon as possible.
+    </p>
+
+    <form method="POST" action="{{ url_for('contact') }}" novalidate>
+      <div class="mb-3">
+        <label for="name" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="Your full name" required>
+        <div class="invalid-feedback">
+          Please enter your name.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label fw-semibold">Email address <span class="text-danger">*</span></label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+        <div class="invalid-feedback">
+          Please enter a valid email address.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="subject" class="form-label fw-semibold">Subject</label>
+        <input type="text" class="form-control" id="subject" name="subject" placeholder="Subject (optional)">
+      </div>
+
+      <div class="mb-3">
+        <label for="message" class="form-label fw-semibold">Message <span class="text-danger">*</span></label>
+        <textarea class="form-control" id="message" name="message" rows="5" placeholder="Write your message here..." required></textarea>
+        <div class="invalid-feedback">
+          Please enter a message.
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary px-5">Send Message</button>
+    </form>
+  </div>
+</div>
+
+<script>
+// Bootstrap custom validation
+(() => {
+  'use strict';
+  const forms = document.querySelectorAll('form');
+
+  Array.from(forms).forEach(form => {
+    form.addEventListener('submit', event => {
+      if(!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      form.classList.add('was-validated');
+    }, false);
+  });
+})();
+</script>
 {% endblock %}
-</html>

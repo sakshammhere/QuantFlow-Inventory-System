@@ -1,7 +1,36 @@
-{% extends "base.html" %}
-{% block title %}About - Dashboard{% endblock %}
+{% extends 'base.html' %}
+
+{% block title %}About - QuantFlow{% endblock %}
+
 {% block content %}
-  <h2>About</h2>
-  <p>This dashboard demo shows a simple organization of content using basic HTML and CSS.</p>
+<section style="padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+  <h1 class="mb-4" style="color: #0366d6; font-weight: 700;">About QuantFlow</h1>
+  <p style="font-size: 1.1rem; line-height: 1.6; max-width: 750px;">
+    QuantFlow is a modern inventory management web application designed to help individuals and small businesses efficiently and securely manage their stock. Our intuitive interface and robust features empower you to take control of your inventory with ease.
+  </p>
+
+  <hr style="margin: 2rem 0; border-color: #e1e4e8;">
+
+  <h2 style="color: #24292e; margin-bottom: 1rem;">Key Features</h2>
+  <ul style="list-style-type: disc; padding-left: 1.5rem; font-size: 1rem; line-height: 1.5;">
+    <li>User authentication and session management with security best practices</li>
+    <li>Easy addition, update, and deletion of inventory items with realtime validation</li>
+    <li>Dynamic, sortable, and searchable inventory tables powered by DataTables.js</li>
+    <li>Responsive design ensuring great experience across devices</li>
+  </ul>
+
+  <hr style="margin: 2rem 0; border-color: #e1e4e8;">
+
+  <h2 style="color: #24292e; margin-bottom: 1rem;">Technology Stack</h2>
+  <ul style="list-style-type: none; padding-left: 0; font-size: 1rem; line-height: 1.5;">
+    <li><strong>Flask</strong> — Lightweight and powerful Python web framework</li>
+    <li><strong>Supabase</strong> — Backend-as-a-Service providing database and authentication</li>
+    <li><strong>DataTables.js</strong> — Enhancing tables with advanced interactivity</li>
+    <li><strong>Bootstrap & custom CSS</strong> — For sleek, responsive styling</li>
+  </ul>
+
+  <p style="margin-top: 2rem; font-style: italic; color: #586069; max-width: 750px;">
+    Our mission is to deliver a reliable and user-friendly inventory management tool, empowering users to organize and monitor their stock efficiently and securely.
+  </p>
+</section>
 {% endblock %}
-</head>
