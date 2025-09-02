@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Confirm Upload - Dashboard{% endblock %}
+{% block content %}
+<h2>Confirm Duplicate Items Upload</h2>
+
+<p>The following items you are uploading already exist in your inventory. Please select which items you want to <strong>UPDATE</strong>. New items will be added automatically.</p>
+
+<form method="POST" action="{{ url_for('confirm_upload') }}">
+
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+    <thead>
+      <tr style="background-color: #f0f0f0;">
+        <th style="padding: 10px; border: 1px solid #ccc;">Update?</th>
+        <th style="padding: 10px; border: 1px solid #ccc;">Name</th>
+        <th style="padding: 10px; border: 1px solid #ccc; text-align: right;">Quantity</th>
+        <th style="padding: 10px; border: 1px solid #ccc; text-align: right;">Price (Rs.)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in duplicates %}
+      <tr>
+        <td style="padding: 10px; border: 1px solid #ccc; text-align: center;">
+          <input type="checkbox" name="update_item_ids" value="{{ item.id }}" checked>
+        </td>
+        <td style="padding: 10px; border: 1px solid #ccc;">{{ item.name }}</td>
+        <td style="padding: 10px; border: 1px solid #ccc; text-align: right;">{{ item.quantity }}</td>
+        <td style="padding: 10px; border: 1px solid #ccc; text-align: right;">{{ "%.2f"|format(item.price) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <button type="submit" style="padding: 12px 24px; background: #4548EB; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+    Confirm Upload
+  </button>
+  <a href="{{ url_for('inventory') }}" style="margin-left: 15px; color: #4548EB; text-decoration: underline;">Cancel and Return to Inventory</a>
+</form>
+{% endblock %}

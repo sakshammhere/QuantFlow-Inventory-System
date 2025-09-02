@@ -7,7 +7,7 @@
 {% if duplicate_item %}
   <div style="color: #e63946; font-weight: bold; margin-bottom: 18px;">
     This item ("{{ entered_name }}") is already present in your inventory.<br>
-    Do you want to <b>Update</b> its quantity and price, or <b>Replace</b> it completely?<br>
+    Do you want to <b>UPDATE</b> its QUANTITY and PRICE, or <b>REPLACE</b> it completely?<br>
     <span style="color:#555; font-weight:normal;">Current: QTY {{ duplicate_item.quantity }}, PRICE {{ "%.2f"|format(duplicate_item.price) }}</span>
   </div>
   <form method="POST" action="{{ url_for('add_item') }}">

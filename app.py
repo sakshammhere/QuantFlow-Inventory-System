@@ -5,10 +5,17 @@ import datetime
 import secrets
 import re
 from flask_mail import Mail, Message
+import pandas as pd
+from io import BytesIO, StringIO
+import difflib
+
+
 
 
 
 secret_key = secrets.token_hex(32)  # 64 hex chars = 256 bits random
+
+
 
 
 
@@ -17,13 +24,19 @@ app.secret_key = secret_key  # Needed for flash messages and sessions
 
 
 
+
+
 supabase_url = "https://rdvwutmjprwxsmqojyfr.supabase.co"
 supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkdnd1dG1qcHJ3eHNtcW9qeWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3NzgxMzgsImV4cCI6MjA3MTM1NDEzOH0.cKao31BA_cch-fMQMFe7smyrwIkZ4WES8HkCREixPnc"
 
 
 
+
+
 # Supabase client without auth token for public requests
 supabase: Client = create_client(supabase_url, supabase_key)
+
+
 
 
 
@@ -38,8 +51,12 @@ mail = Mail(app)
 
 
 
+
+
 # global INVENTORY not required since now inventory is created dynamically
 INVENTORY = []  # This is left empty initially, and items are added through the add_item route.
+
+
 
 
 
@@ -49,9 +66,40 @@ def get_supabase_client():
 
 
 
+
+
 def sanitize_email(email):
     return re.sub(r'\W+', '_', email)
 # contains only alphanumeric and underscores
+
+
+
+
+def find_best_column(columns, target_names):
+    # columns - list of actual column names
+    # target_names - list of possible names for a column like name, item_name, item, etc.
+    for target in target_names:
+        matches = difflib.get_close_matches(target.lower(), [c.lower() for c in columns], n=1, cutoff=0.6)
+        if matches:
+            # Return the actual column name 
+            for c in columns:
+                if c.lower() == matches[0]:
+                    return c
+    return None
+
+
+# helper function to find duplicates with fuzzy matching
+def find_duplicate_item(name, existing_items):
+    name_lower = name.strip().lower()
+    for item in existing_items:
+        existing_name = item['name'].strip().lower()
+        if existing_name == name_lower:
+            return item['id']
+        ratio = difflib.SequenceMatcher(None, existing_name, name_lower).ratio()
+        if ratio > 0.85:
+            return item['id']
+    return None
+
 
 
 
@@ -65,9 +113,11 @@ def home():
 
 
 
+
 @app.route('/about')
 def about():
     return render_template('about.html')
+
 
 
 
@@ -84,7 +134,9 @@ def contact():
 
 
 
+
         message = request.form.get('message')
+
 
 
 
@@ -106,6 +158,7 @@ def contact():
 
 
 
+
         msg = Message(subject=f"Contact Form: {subject}",
                       sender=app.config['MAIL_USERNAME'],
                       recipients=['guptasaksham0301@gmail.com'],
@@ -121,6 +174,7 @@ def contact():
                 'message': message,
                 'created_at': datetime.datetime.now(datetime.timezone.utc).isoformat()
             }).execute()
+
 
 
 
@@ -150,7 +204,9 @@ def contact():
 
 
 
+
     return render_template('contact.html')
+
 
 
 
@@ -169,6 +225,7 @@ def inventory():
 
 
 
+
     try:
         # Query from single shared table filtering by user_email (simulate RLS)
         response = supabase_user.table('user_inventory').select("*").eq('user_email', user_email).execute()
@@ -177,6 +234,7 @@ def inventory():
         inventory = []
         flash("Error loading inventory: " + str(e))
     return render_template('inventory.html', inventory=inventory)
+
 
 
 
@@ -194,10 +252,12 @@ def add_item():
 
 
 
+
     if request.method == 'POST':
         # Handle duplicates items entered
         action = request.form.get('action')
         duplicate_id = request.form.get('duplicate_id')
+
 
 
 
@@ -214,12 +274,7 @@ def add_item():
                 flash("Invalid quantity or price.")
                 return redirect(url_for('add_item'))
             if action == 'update':
-                # Update only quantity and price
-
-
-
-
-
+                # Update : only quantity and price
                 try:
                     supabase_user.table('user_inventory').update({
                         "quantity": quantity,
@@ -229,11 +284,7 @@ def add_item():
                 except Exception as e:
                     flash("Error updating item: " + str(e))
             elif action == 'replace':
-
-
-
-
-
+                
                 # Overwrite everything (including name, price, quantity)
                 try:
                     supabase_user.table('user_inventory').update({
@@ -250,9 +301,11 @@ def add_item():
 
 
 
+
         names = request.form.getlist('name[]')
         quantities = request.form.getlist('quantity[]')
         prices = request.form.getlist('price[]')
+
 
 
 
@@ -270,7 +323,11 @@ def add_item():
 
 
 
+
+
             # Query user's inventory for existing items(caps/smalls also checked)
+
+
 
 
 
@@ -280,6 +337,8 @@ def add_item():
             duplicate = next(
                 (item for item in existing_items if item['name'].strip().lower() == name.strip().lower()), None
             )
+
+
 
 
 
@@ -311,6 +370,9 @@ def add_item():
 
 
 
+
+
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -324,10 +386,14 @@ def signup():
 
 
 
+
+
         existing_user = supabase.table('user_details').select("*").eq('email_id', email).execute()
         if existing_user.data:
             flash("Email already registered. Please login.")
             return redirect(url_for('login'))
+
+
 
 
 
@@ -336,6 +402,8 @@ def signup():
             "email": email,
             "password": password
         })
+
+
 
 
 
@@ -351,6 +419,8 @@ def signup():
 
 
 
+
+
         hashed_password = generate_password_hash(password)
         data = {
             "name": name,
@@ -362,7 +432,13 @@ def signup():
 
 
 
+
+
+
         # Removed per-user inventory table creation (no longer needed with shared table)
+
+
+
 
 
 
@@ -370,6 +446,9 @@ def signup():
         return render_template('signup.html', show_login_link=True)
     else:
         return render_template('signup.html')
+
+
+
 
 
 
@@ -381,8 +460,12 @@ def login():
 
 
 
+
+
         # Authenticate using Supabase Auth for proper JWT token
         response = supabase.auth.sign_in_with_password({"email": email, "password": password})
+
+
 
 
 
@@ -393,8 +476,12 @@ def login():
 
 
 
+
+
         user = response.user
         access_token = response.session.access_token if response.session else None
+
+
 
 
 
@@ -404,6 +491,9 @@ def login():
         # Save email and JWT token in session for auth requests
         flash("Login successful!")
         session['user_email'] = user.email
+
+
+
 
     # getting user's full name from Supabase 'user_details' table for hello,name display in navbar
         try:
@@ -416,11 +506,17 @@ def login():
             print(f"Error fetching user name from database: {e}")
             user_name = "User"
 
+
+
+
         session['user_name'] = user_name
         session['access_token'] = access_token
         return redirect(url_for('inventory'))
     else:
         return render_template('login.html')
+
+
+
 
 
 
@@ -434,12 +530,17 @@ def logout():
 
 
 
+
+
+
 @app.route('/reports')
 def reports():
     if not session.get('user_email'):
         flash("Please log in to view reports.")
         return redirect(url_for('login'))
     return render_template('reports.html')
+
+
 
 
 
@@ -484,6 +585,9 @@ def edit_item(item_id):
 
 
 
+
+
+
 @app.route('/delete-item/<int:item_id>', methods=['POST'])
 def delete_item(item_id):
     # Protect delete so only logged-in users can access
@@ -501,23 +605,154 @@ def delete_item(item_id):
 
 
 
+
+
+
 @app.route('/upload-file', methods=['GET', 'POST'])
 def upload_file():
     if not session.get('user_email'):
         flash("Please log in to upload files.")
         return redirect(url_for('login'))
     if request.method == 'POST':
-        # file upload here
         uploaded_file = request.files.get('file')
         if uploaded_file:
-            # Processing the uploaded file
-            pass
-        flash("File uploaded successfully!")
-        return redirect(url_for('inventory'))
+            try:
+                filename = uploaded_file.filename
+                user_email = session['user_email']
+                supabase_user = get_supabase_client()
+
+
+
+                if filename.endswith('.csv'):
+                    content = uploaded_file.stream.read().decode("utf-8")
+                    df = pd.read_csv(StringIO(content))
+                elif filename.endswith(('.xls', '.xlsx')):
+                    in_memory_file = BytesIO(uploaded_file.read())
+                    df = pd.read_excel(in_memory_file)
+                else:
+                    flash("Unsupported file format. Please upload CSV or Excel files.")
+                    return redirect(url_for('upload_file'))
+
+
+
+                name_col = find_best_column(df.columns, ['name', 'item_name', 'item'])
+                quantity_col = find_best_column(df.columns, ['quantity', 'qty', 'count'])
+                price_col = find_best_column(df.columns, ['price', 'cost', 'amount', 'rate'])
+
+
+
+                if not all([name_col, quantity_col, price_col]):
+                    flash("Could not detect all required columns (name, quantity, price). Please ensure your file has these columns.")
+                    return redirect(url_for('upload_file'))
+
+
+
+                # Fetch existing inventory for user
+                response = supabase_user.table('user_inventory').select('id', 'name').eq('user_email', user_email).execute()
+                existing_items = response.data or []
+                
+                duplicates = []
+                new_items = []
+
+
+                for _, row in df.iterrows():
+                    name = str(row[name_col]).strip()
+                    try:
+                        quantity = int(row[quantity_col])
+                        price = float(row[price_col])
+                    except (ValueError, TypeError):
+                        continue
+                    if not name:
+                        continue
+
+
+                    item_data = {
+                        "user_email": user_email,
+                        "name": name,
+                        "quantity": quantity,
+                        "price": price,
+                        "created_at": datetime.datetime.utcnow().isoformat()
+                    }
+
+
+                    dup_id = find_duplicate_item(name, existing_items)
+                    if dup_id:
+                        item_data['id'] = dup_id
+                        duplicates.append(item_data)
+                    else:
+                        new_items.append(item_data)
+
+
+                # Save duplicates and new_items temporarily in session for confirmation
+                session['upload_duplicates'] = duplicates
+                session['upload_new_items'] = new_items
+
+
+                if duplicates:
+                    # Render confirmation page for duplicates
+                    return render_template('confirm_upload.html', duplicates=duplicates)
+                else:
+                    # Insert all new items
+                    for item in new_items:
+                        supabase_user.table('user_inventory').insert(item).execute()
+                    flash("File uploaded and items added successfully!")
+                    return redirect(url_for('inventory'))
+
+
+
+
+            except Exception as e:
+                flash(f"Failed to process uploaded file: {str(e)}")
+                return redirect(url_for('upload_file'))
+        else:
+            flash("No file selected.")
+            return redirect(url_for('upload_file'))
     return render_template('upload_file.html')
+
+
+
+
+
+@app.route('/confirm-upload', methods=['POST'])
+def confirm_upload():
+    if not session.get('user_email'):
+        flash("Please log in.")
+        return redirect(url_for('login'))
+
+
+    supabase_user = get_supabase_client()
+    duplicates = session.pop('upload_duplicates', [])
+    new_items = session.pop('upload_new_items', [])
+
+
+    ids_to_update = request.form.getlist('update_item_ids')
+
+
+    for item in duplicates:
+        if str(item['id']) in ids_to_update:
+            supabase_user.table('user_inventory').update({
+                "name": item['name'],
+                "quantity": item['quantity'],
+                "price": item['price']
+            }).eq('id', item['id']).eq('user_email', session['user_email']).execute()
+
+
+    for item in new_items:
+        supabase_user.table('user_inventory').insert(item).execute()
+
+
+    flash("Upload processed: updated selected duplicate items, added new items.")
+    return redirect(url_for('inventory'))
+
+
 
 
 
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
+
+
+
+
+
