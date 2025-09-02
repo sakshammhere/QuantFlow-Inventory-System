@@ -1,33 +1,77 @@
 {% extends "base.html" %}
 {% block title %}Home - Dashboard{% endblock %}
 {% block content %}
-  <h2>Welcome to QuantFlow Dashboard</h2>
-  <p>
-    Manage your data, view reports, and quickly navigate to any section using the menu above.
-  </p>
-  
-  <div style="display: flex; gap: 24px; flex-wrap: wrap; margin-top: 32px;">
-    <div style="flex: 1 1 200px; background: #f7f7fa; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px #0001;">
-      <h3>🔎 Browse Inventory</h3>
-      <p>See all items in your inventory.</p>
-      <a href="{{ url_for('inventory') }}">Go to Inventory</a>
-    </div>
-    <div style="flex: 1 1 200px; background: #f7f7fa; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px #0001;">
-      <h3>➕ Add New Item</h3>
-      <p>Quickly add new items to your inventory.</p>
-      <a href="{{ url_for('add_item') }}">Add Item</a>
-    </div>
-    <div style="flex: 1 1 200px; background: #f7f7fa; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px #0001;">
-      <h3>📊 View Reports</h3>
-      <p>Analyze inventory usage and trends.</p>
-      <a href="{{ url_for('reports') }}">View Reports</a>
+  <div class="text-center mb-5">
+    <h2 class="fw-bold">✨ Welcome to QuantFlow Dashboard ✨</h2>
+    <p class="text-muted">
+      Manage your data, view insightful reports, and navigate seamlessly through your dashboard.
+    </p>
+  </div>
+
+
+  <div class="container">
+    <div class="row g-4 justify-content-center">
+      <!-- Inventory -->
+      <div class="col-md-4 col-lg-3">
+        <div class="card shadow-lg border-0 h-100 text-center rounded-4 hover-card">
+          <div class="card-body d-flex flex-column justify-content-center">
+            <h3 class="card-title mb-3 fs-4">🔎 Browse Inventory</h3>
+            <p class="card-text text-muted">View all items and add new ones with ease.</p>
+            <a class="btn btn-primary mt-auto px-4 rounded-pill" href="{{ url_for('inventory') }}">
+              Go to Inventory
+            </a>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Upload File  -->
+      <div class="col-md-4 col-lg-3">
+        <div class="card shadow-lg border-0 h-100 text-center rounded-4 hover-card">
+          <div class="card-body d-flex flex-column justify-content-center">
+            <h3 class="card-title mb-3 fs-4">➕ Upload File</h3>
+            <p class="card-text text-muted">Easily add multiple items at once.</p>
+            <a class="btn btn-success mt-auto px-4 rounded-pill" href="{{ url_for('upload_file') }}">
+              Upload File
+            </a>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Reports  -->
+      <div class="col-md-4 col-lg-3">
+        <div class="card shadow-lg border-0 h-100 text-center rounded-4 hover-card">
+          <div class="card-body d-flex flex-column justify-content-center">
+            <h3 class="card-title mb-3 fs-4">📊 View Reports</h3>
+            <p class="card-text text-muted">Analyze trends and inventory usage.</p>
+            <a class="btn btn-warning mt-auto px-4 rounded-pill" href="{{ url_for('reports') }}">
+              View Reports
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div style="margin-top:40px;">
-    <h4>Need Help?</h4>
-    <p>
-      Check out our <a href="{{ url_for('about') }}">About</a> page or <a href="{{ url_for('contact') }}">Contact Us</a> for support.
+
+  <!-- Help Section -->
+  <div class="text-center mt-5 mx-auto" style="max-width: 720px;">
+    <h4 class="fw-semibold">❓ Need Help?</h4>
+    <p class="text-muted">
+      Visit our <a href="{{ url_for('about') }}" class="fw-medium">About</a> page 
+      or <a href="{{ url_for('contact') }}" class="fw-medium">Contact Us</a> for support.
     </p>
   </div>
+
+
+  <style>
+    .hover-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+  </style>
 {% endblock %}

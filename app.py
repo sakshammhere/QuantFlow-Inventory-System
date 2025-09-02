@@ -6,36 +6,54 @@ import secrets
 import re
 from flask_mail import Mail, Message
 
+
+
 secret_key = secrets.token_hex(32)  # 64 hex chars = 256 bits random
+
+
 
 app = Flask(__name__)
 app.secret_key = secret_key  # Needed for flash messages and sessions
 
+
+
 supabase_url = "https://rdvwutmjprwxsmqojyfr.supabase.co"
 supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkdnd1dG1qcHJ3eHNtcW9qeWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3NzgxMzgsImV4cCI6MjA3MTM1NDEzOH0.cKao31BA_cch-fMQMFe7smyrwIkZ4WES8HkCREixPnc"
 
+
+
 # Supabase client without auth token for public requests
 supabase: Client = create_client(supabase_url, supabase_key)
+
+
 
 app.config.update(
     MAIL_SERVER='smtp.gmail.com',
     MAIL_PORT=587,
     MAIL_USE_TLS=True,
-    MAIL_USERNAME='guptasaksham0301@gmail.com',      
-    MAIL_PASSWORD='uxud pqvr brac eqvj'    
+    MAIL_USERNAME='guptasaksham0301@gmail.com',
+    MAIL_PASSWORD='uxud pqvr brac eqvj'
 )
 mail = Mail(app)
 
+
+
 # global INVENTORY not required since now inventory is created dynamically
 INVENTORY = []  # This is left empty initially, and items are added through the add_item route.
+
+
 
 # Function to create supabase client with current user's access token
 def get_supabase_client():
     return supabase
 
+
+
 def sanitize_email(email):
     return re.sub(r'\W+', '_', email)
 # contains only alphanumeric and underscores
+
+
 
 
 
@@ -45,9 +63,13 @@ def home():
 
 
 
+
+
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+
 
 
 
@@ -57,7 +79,14 @@ def contact():
         name = request.form.get('name')
         email = request.form.get('email')
         subject = request.form.get('subject', '')
+
+
+
+
+
         message = request.form.get('message')
+
+
 
 
 
@@ -66,12 +95,15 @@ def contact():
             return redirect(request.url)
         
         # email send algo here
-        body= f''' New Contact Form Submission
+        body = f''' New Contact Form Submission
         Name: {name}
         Email: {email}
         Subject: {subject}
         Message: {message}
         '''
+
+
+
 
 
         msg = Message(subject=f"Contact Form: {subject}",
@@ -89,6 +121,10 @@ def contact():
                 'message': message,
                 'created_at': datetime.datetime.now(datetime.timezone.utc).isoformat()
             }).execute()
+
+
+
+
 
             if hasattr(result, "status_code") and result.status_code >= 400:
                 flash(f"Failed to save your message to database: {result.data}")
@@ -112,7 +148,11 @@ def contact():
 
 
 
+
+
     return render_template('contact.html')
+
+
 
 
 
@@ -127,6 +167,8 @@ def inventory():
 
 
 
+
+
     try:
         # Query from single shared table filtering by user_email (simulate RLS)
         response = supabase_user.table('user_inventory').select("*").eq('user_email', user_email).execute()
@@ -135,6 +177,8 @@ def inventory():
         inventory = []
         flash("Error loading inventory: " + str(e))
     return render_template('inventory.html', inventory=inventory)
+
+
 
 
 
@@ -148,10 +192,14 @@ def add_item():
 
 
 
+
+
     if request.method == 'POST':
         # Handle duplicates items entered
         action = request.form.get('action')
         duplicate_id = request.form.get('duplicate_id')
+
+
 
 
 
@@ -170,6 +218,8 @@ def add_item():
 
 
 
+
+
                 try:
                     supabase_user.table('user_inventory').update({
                         "quantity": quantity,
@@ -179,6 +229,8 @@ def add_item():
                 except Exception as e:
                     flash("Error updating item: " + str(e))
             elif action == 'replace':
+
+
 
 
 
@@ -196,9 +248,13 @@ def add_item():
 
 
 
+
+
         names = request.form.getlist('name[]')
         quantities = request.form.getlist('quantity[]')
         prices = request.form.getlist('price[]')
+
+
 
 
 
@@ -212,7 +268,11 @@ def add_item():
             except ValueError:
                 continue
 
+
+
             # Query user's inventory for existing items(caps/smalls also checked)
+
+
 
             existing_items_resp = supabase_user.table('user_inventory') \
                 .select("*").eq('user_email', user_email).execute()
@@ -220,6 +280,8 @@ def add_item():
             duplicate = next(
                 (item for item in existing_items if item['name'].strip().lower() == name.strip().lower()), None
             )
+
+
 
             if duplicate:
                 # ask what to do if duplicate found : update or replace
@@ -247,6 +309,8 @@ def add_item():
     else:
         return render_template('add_item.html')
 
+
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -258,16 +322,22 @@ def signup():
             flash("Passwords do not match!")
             return redirect(url_for('signup'))
 
+
+
         existing_user = supabase.table('user_details').select("*").eq('email_id', email).execute()
         if existing_user.data:
             flash("Email already registered. Please login.")
             return redirect(url_for('login'))
+
+
 
         # Sign up user in Supabase Auth
         auth_response = supabase.auth.sign_up({
             "email": email,
             "password": password
         })
+
+
 
         # Check for errors safely
         if getattr(auth_response, "status_code", 200) >= 400 or not getattr(auth_response, "user", None):
@@ -279,6 +349,8 @@ def signup():
             flash("Error signing up: " + error_message)
             return redirect(url_for('signup'))
 
+
+
         hashed_password = generate_password_hash(password)
         data = {
             "name": name,
@@ -288,12 +360,18 @@ def signup():
         }
         supabase.table('user_details').insert(data).execute()
 
+
+
         # Removed per-user inventory table creation (no longer needed with shared table)
+
+
 
         flash("Signup successful! Please login.")
         return render_template('signup.html', show_login_link=True)
     else:
         return render_template('signup.html')
+
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -301,16 +379,24 @@ def login():
         email = request.form['email'].strip()
         password = request.form['password']
 
+
+
         # Authenticate using Supabase Auth for proper JWT token
         response = supabase.auth.sign_in_with_password({"email": email, "password": password})
+
+
 
         # Check for errors safely
         if getattr(response, "status_code", 200) >= 400 or not getattr(response, "user", None):
             flash("Incorrect email or password.")
             return redirect(url_for('login'))
 
+
+
         user = response.user
         access_token = response.session.access_token if response.session else None
+
+
 
         if not user or not access_token:
             flash("Login failed. Please try again.")
@@ -318,17 +404,25 @@ def login():
         # Save email and JWT token in session for auth requests
         flash("Login successful!")
         session['user_email'] = user.email
-        user_name = "User"
-        if hasattr(user, "user_metadata") and user.user_metadata is not None:
-            if isinstance(user.user_metadata, dict):
-                user_name = user.user_metadata.get("full_name", "User")
+
+    # getting user's full name from Supabase 'user_details' table for hello,name display in navbar
+        try:
+            user_detail_response = supabase.table('user_details').select('name').eq('email_id', user.email).execute()
+            if user_detail_response.data and len(user_detail_response.data) > 0:
+                user_name = user_detail_response.data[0].get('name', 'User')
             else:
-                user_name = getattr(user.user_metadata, "full_name", "User")
+                user_name = "User"
+        except Exception as e:
+            print(f"Error fetching user name from database: {e}")
+            user_name = "User"
+
         session['user_name'] = user_name
         session['access_token'] = access_token
         return redirect(url_for('inventory'))
     else:
         return render_template('login.html')
+
+
 
 @app.route('/logout')
 def logout():
@@ -338,9 +432,17 @@ def logout():
     flash("You have been logged out.")
     return redirect(url_for('home'))
 
+
+
 @app.route('/reports')
 def reports():
+    if not session.get('user_email'):
+        flash("Please log in to view reports.")
+        return redirect(url_for('login'))
     return render_template('reports.html')
+
+
+
 
 @app.route('/edit-item/<int:item_id>', methods=['GET', 'POST'])
 def edit_item(item_id):
@@ -380,6 +482,8 @@ def edit_item(item_id):
         return redirect(url_for('inventory'))
     return render_template('edit_item.html', item=item)
 
+
+
 @app.route('/delete-item/<int:item_id>', methods=['POST'])
 def delete_item(item_id):
     # Protect delete so only logged-in users can access
@@ -395,10 +499,25 @@ def delete_item(item_id):
         flash("Error deleting item: " + str(e))
     return redirect(url_for('inventory'))
 
+
+
+@app.route('/upload-file', methods=['GET', 'POST'])
+def upload_file():
+    if not session.get('user_email'):
+        flash("Please log in to upload files.")
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        # file upload here
+        uploaded_file = request.files.get('file')
+        if uploaded_file:
+            # Processing the uploaded file
+            pass
+        flash("File uploaded successfully!")
+        return redirect(url_for('inventory'))
+    return render_template('upload_file.html')
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
-
-
-
-
-

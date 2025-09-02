@@ -5,11 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}Dashboard{% endblock %}</title>
 
+
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" />
 
+
   <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css" />
+
 
   <style>
     body {
@@ -26,6 +29,7 @@
       line-height: 1.6;
     }
 
+
     nav.navbar-dark {
       background: linear-gradient(90deg, #1f1f23, #2d2f36);
       box-shadow: 0 4px 20px rgba(0,0,0,0.25);
@@ -34,6 +38,7 @@
     nav.navbar-dark:hover {
       background: linear-gradient(90deg, #18191d, #24262b);
     }
+
 
     /* Brand styling */
     .navbar-brand {
@@ -51,6 +56,7 @@
       transform: scale(1.08);
       text-decoration: none;
     }
+
 
     /* Navbar links */
     nav.navbar-dark .nav-link {
@@ -70,6 +76,7 @@
       transform: translateY(-2px);
     }
 
+
     /* Flash message */
     .flash-message {
       background: #fff9e6;
@@ -84,6 +91,7 @@
       animation: fadeIn 0.6s ease;
     }
 
+
     table.dataTable {
       border-radius: 0.5rem !important;
       overflow: hidden !important;
@@ -91,6 +99,7 @@
       border: none !important;
       background: #ffffff;
     }
+
 
     main.container {
       max-width: 1140px;
@@ -101,6 +110,7 @@
       box-shadow: 0 10px 28px rgba(0,0,0,0.1);
       animation: fadeUp 0.7s ease;
     }
+
 
     /* Footer */
     footer {
@@ -121,10 +131,12 @@
       color: #73b2ff;
     }
 
+
     a:focus, button:focus, input:focus {
       outline: 3px solid #007bff;
       outline-offset: 2px;
     }
+
 
     /*Animations */
     @keyframes fadeIn {
@@ -132,25 +144,31 @@
       to { opacity: 1; }
     }
 
+
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
   </style>
 
+
   {% block head %}{% endblock %}
 </head>
 <body>
 
+
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow-sm">
     <div class="container">
 
+
       <a class="navbar-brand" href="{{ url_for('home') }}">QuantFlow</a>
+
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
           aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
+
 
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -167,6 +185,7 @@
             <a class="nav-link {% if request.endpoint == 'contact' %}active{% endif %}" href="{{ url_for('contact') }}">Contact Us</a>
           </li>
         </ul>
+
 
         <ul class="navbar-nav ms-auto">
           {% if session.get('user_name') %}
@@ -187,8 +206,10 @@
         </ul>
       </div>
 
+
     </div>
   </nav>
+
 
   <main class="container shadow-sm">
     {% with messages = get_flashed_messages() %}
@@ -201,19 +222,25 @@
       {% endif %}
     {% endwith %}
 
+
     {% block content %}{% endblock %}
   </main>
+
 
   <footer>
     &copy; 2025 QuantFlow. All rights reserved.
   </footer>
 
+
   <!-- Bootstrap 5 JS bundle + Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 
+
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
+
   <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+
 
   <script>
     $(document).ready(function() {
