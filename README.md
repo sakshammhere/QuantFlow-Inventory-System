@@ -1,76 +1,54 @@
-# QuantFlow-Inventory-System  
+***
 
-Features
+# QuantFlow-Inventory-System
 
-🔐 Authentication & Security
+## 🚀 Project Overview
+QuantFlow-Inventory-System is a Flask web application for inventory management featuring secure user authentication, email notifications, and Supabase cloud database integration. The app streamlines item management and bulk imports, improves reliability with duplicate detection, and enhances user feedback through flash messages.
 
--User signup/login/logout with Supabase Auth (JWT).
+## ✨ Features
 
--Password hashing & secure session management.
+### 🔐 Authentication & Security
+- User signup, login, and logout powered by Supabase Auth (JWT tokens).
+- Password hashing with Werkzeug and secure session management.
+- Input validation and email sanitization throughout user flows.
 
--Input validation & email sanitization.
+### 📦 Inventory Management
+- Add, edit, and delete items linked to individual users.
+- Duplicate detection via fuzzy string matching (difflib).
+- Timestamped item entries to track item history.
 
+### 📂 File Uploads & Data Handling
+- Upload CSV/Excel files for bulk inventory import.
+- Automatic column detection even if file headers differ.
+- Thorough row validation and error feedback.
+- Staging area to review imports, handle duplicates (option to update or replace).
 
-📦 Inventory Management
+### 📧 Contact & Notifications
+- In-app contact form saves user messages to Supabase.
+- Email alerts sent via Flask-Mail (Gmail SMTP).
+- Flash messages for instant success and error feedback.
 
--Add, edit, delete items linked to the logged-in user.
+### 🛡️ Security
+- Dynamic secret key generation (`secrets.token_hex`).
+- Robust error handling for all DB and email operations.
+- User data isolation: each account only sees its own inventory.
 
--Duplicate detection using fuzzy string matching (difflib).
+### 🎨 User Experience
+- Clean dashboard UI built with Bootstrap templates.
+- Flash alerts for critical actions (add/update/delete/upload).
+- Session-based workflows for seamless navigation.
 
--Timestamped entries for tracking item history.
+## ⚙️ Tech Stack
 
-
-📂 File Uploads & Data Handling
-
--Upload CSV/Excel files to bulk import items.
-
--Smart automatic column detection (works even if headers differ)
-
--Handles invalid rows and provides error feedback.
-
--Staging area (review before saving) with duplicate handling (update vs replace).
-
-
-📧 Contact & Notifications
-
--Contact form saves messages in Supabase.
-
--Sends email alerts via Flask-Mail (Gmail SMTP).
-
--Flash messages for instant success/error feedback.
-
-
-🛡️ Security
-
--Dynamic secret key generation (secrets.token_hex).
-
--Clean error handling for DB and email operations.
-
--User isolation – each account only sees their own inventory.
-
-
-🎨 User Experience
-
--Clean dashboard with Bootstrap templates.
-
--Flash alerts for actions (add/update/delete/upload).
-
--Session-based workflows for smooth navigation.
+| Layer      | Technology                           |
+|------------|--------------------------------------|
+| **Backend**   | Flask (Python)                      |
+| **Database & Auth** | Supabase (PostgreSQL + Auth)         |
+| **File Handling**   | Pandas, OpenPyXL                    |
+| **Email Service**   | Flask-Mail (SMTP)                   |
+| **Frontend**   | Jinja2 (templates), Bootstrap        |
+| **Security**   | Werkzeug, secrets, input validation   |
 
 
-⚙️ Tech Stack
 
--Backend: Flask (Python)
-
--Database & Auth: Supabase (PostgreSQL + Auth)
-
--File Handling: Pandas, OpenPyXL
-
--Email Service: Flask-Mail (SMTP)
-
--Frontend: Jinja2 templates + Bootstrap
-
--Security: Werkzeug (password hashing), Secrets, Input validation
-
-
-<img width="944" height="499" alt="image" src="https://github.com/user-attachments/assets/ec8d7960-da2e-4f8f-b0c1-f2f22b70d0ed" />
+***
